@@ -137,21 +137,6 @@ func newTimerBuilder(config *Config, logger bark.Logger, timeSource common.TimeS
 	}
 }
 
-// newTimerBuilderForStandby creates a timer builder for standby logic, this is temporary hack to disable activity heartbeat
-func newTimerBuilderForStandby(config *Config, logger bark.Logger, timeSource common.TimeSource) *timerBuilder {
-	return &timerBuilder{
-		userTimers:              timers{},
-		pendingUserTimers:       make(map[string]*persistence.TimerInfo),
-		activityTimers:          timers{},
-		pendingActivityTimers:   make(map[int64]*persistence.ActivityInfo),
-		config:                  config,
-		logger:                  logger.WithField(logging.TagWorkflowComponent, "timer-builder"),
-		localSeqNumGen:          &localSeqNumGenerator{counter: 1},
-		timeSource:              timeSource,
-		enableActivityHeartbeat: false,
-	}
-}
-
 // AddStartToCloseDecisionTimoutTask - Add a decision start to close timeout task.
 func (tb *timerBuilder) AddStartToCloseDecisionTimoutTask(scheduleID, scheduleAttempt int64,
 	startToCloseTimeout int32) *persistence.DecisionTimeoutTask {
