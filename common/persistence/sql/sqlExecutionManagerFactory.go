@@ -56,7 +56,7 @@ func (f *sqlExecutionManagerFactory) CreateExecutionManager(shardID int) (persis
 	if err != nil {
 		return nil, err
 	}
-	mgr := persistence.NewExecutionManagerImpl(pMgr)
+	mgr := persistence.NewExecutionManagerImpl(pMgr, f.logger)
 	return mgr, nil
 }
 

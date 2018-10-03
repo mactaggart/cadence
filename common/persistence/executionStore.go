@@ -21,6 +21,7 @@
 package persistence
 
 import (
+	"github.com/uber-common/bark"
 	workflow "github.com/uber/cadence/.gen/go/shared"
 	"github.com/uber/cadence/common"
 )
@@ -32,17 +33,19 @@ type (
 		serializer    HistorySerializer
 		persistence   ExecutionStore
 		statsComputer statsComputer
+		logger        bark.Logger
 	}
 )
 
 var _ ExecutionManager = (*executionManagerImpl)(nil)
 
 // NewExecutionManagerImpl returns new ExecutionManager
-func NewExecutionManagerImpl(persistence ExecutionStore) ExecutionManager {
+func NewExecutionManagerImpl(persistence ExecutionStore, logger bark.Logger) ExecutionManager {
 	return &executionManagerImpl{
 		serializer:    NewHistorySerializer(),
 		persistence:   persistence,
 		statsComputer: statsComputer{},
+		logger:        logger,
 	}
 }
 
@@ -84,6 +87,14 @@ func (m *executionManagerImpl) GetWorkflowExecution(request *GetWorkflowExecutio
 	}
 
 	newResponse.MutableStateStats = m.statsComputer.computeMutableStateStats(response)
+	if newResponse.MutableStateStats.BufferedEventsCount > 1000 {
+		m.logger.WithFields(
+			bark.Fields{
+				"Domain":     request.DomainID,
+				"WorkflowID": request.Execution.WorkflowId,
+				"RunID":      request.Execution.RunId,
+			}).Info("BufferedEventsCount is too large")
+	}
 	return newResponse, nil
 }
 
