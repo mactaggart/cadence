@@ -64,7 +64,7 @@ func (f *cassandraPersistenceClientFactory) CreateExecutionManager(shardID int) 
 		return nil, err
 	}
 
-	mgr := p.NewExecutionManagerImpl(pmgr)
+	mgr := p.NewExecutionManagerImpl(pmgr, f.logger)
 
 	if f.rateLimiter != nil {
 		mgr = p.NewWorkflowExecutionPersistenceRateLimitedClient(mgr, f.rateLimiter, f.logger)
