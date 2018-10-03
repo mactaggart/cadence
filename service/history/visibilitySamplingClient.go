@@ -94,6 +94,11 @@ func (m *domainToBucketMap) getRateLimiter(domain string, numOfPriority, qps int
 func (p *visibilitySamplingClient) RecordWorkflowExecutionStarted(request *persistence.RecordWorkflowExecutionStartedRequest) error {
 	domain := request.Domain
 
+	p.logger.WithFields(bark.Fields{
+		"testConfig":    "history.historyVisibilityOpenMaxQPS",
+		"testConfigVal": p.config.VisibilityOpenMaxQPS(domain),
+	}).Info("Test flipr config")
+
 	rateLimiter := p.rateLimitersForOpen.getRateLimiter(domain, numOfPriorityForOpen, p.config.VisibilityOpenMaxQPS(domain))
 	if ok, _ := rateLimiter.GetToken(0, 1); ok {
 		return p.persistence.RecordWorkflowExecutionStarted(request)
@@ -107,6 +112,11 @@ func (p *visibilitySamplingClient) RecordWorkflowExecutionStarted(request *persi
 func (p *visibilitySamplingClient) RecordWorkflowExecutionClosed(request *persistence.RecordWorkflowExecutionClosedRequest) error {
 	domain := request.Domain
 	priority := getRequestPriority(request)
+
+	p.logger.WithFields(bark.Fields{
+		"testConfig":    "history.historyVisibilityClosedMaxQPS",
+		"testConfigVal": p.config.VisibilityClosedMaxQPS(domain),
+	}).Info("Test flipr config")
 
 	rateLimiter := p.rateLimitersForClosed.getRateLimiter(domain, numOfPriorityForClosed, p.config.VisibilityClosedMaxQPS(domain))
 	if ok, _ := rateLimiter.GetToken(priority, 1); ok {

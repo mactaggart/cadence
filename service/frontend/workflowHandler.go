@@ -1908,6 +1908,11 @@ func (wh *WorkflowHandler) ListClosedWorkflowExecutions(ctx context.Context,
 			Message: "Only one of ExecutionFilter, TypeFilter or StatusFilter is allowed"}, scope)
 	}
 
+	wh.GetLogger().WithFields(bark.Fields{
+		"testConfig":    "frontend.visibilityMaxPageSize",
+		"testConfigVal": wh.config.VisibilityMaxPageSize(listRequest.GetDomain()),
+	}).Info("Test flipr config")
+
 	if listRequest.GetMaximumPageSize() <= 0 {
 		listRequest.MaximumPageSize = common.Int32Ptr(int32(wh.config.VisibilityMaxPageSize(listRequest.GetDomain())))
 	}
