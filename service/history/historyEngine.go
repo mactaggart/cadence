@@ -2321,6 +2321,10 @@ func (e *historyEngineImpl) SyncShardStatus(ctx context.Context, request *h.Sync
 	return nil
 }
 
+func (e *historyEngineImpl) SyncActivity(ctx context.Context, request *h.SyncActivityRequest) (retError error) {
+	return e.replicator.SyncActivity(ctx, request)
+}
+
 type updateWorkflowAction struct {
 	deleteWorkflow bool
 	createDecision bool
