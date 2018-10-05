@@ -1995,12 +1995,12 @@ GetFailureReasonLoop:
 			rowTypeExecutionTaskID).Exec()
 
 		if deleteErr == nil {
-			d.logger.WithField("DeletedAndKeep",
-				fmt.Sprintf("WorkflowID: %v, Deleted RunID: %v, Keep RunID: %v", ei.WorkflowID, requestConditionalRunID, actualCurrRunID)).Info("delete dangling workflow")
+			d.logger.WithField("delete-dangling", ei.DomainID).
+				WithField("delete-msg", fmt.Sprintf("WorkflowID: %v, Deleted RunID: %v, Keep RunID: %v", ei.WorkflowID, requestConditionalRunID, actualCurrRunID)).WithField("delete-err", "no-error").Info("delete dangling workflow")
 
 		} else {
-			d.logger.WithField("err-msg", deleteErr.Error()).WithField("DeletedAndKeep",
-				fmt.Sprintf("WorkflowID: %v, Deleted RunID: %v, Keep RunID: %v", ei.WorkflowID, requestConditionalRunID, actualCurrRunID)).Info("delete dangling workflow")
+			d.logger.WithField("delete-dangling", ei.DomainID).
+				WithField("delete-msg", fmt.Sprintf("WorkflowID: %v, Deleted RunID: %v, Keep RunID: %v", ei.WorkflowID, requestConditionalRunID, actualCurrRunID)).WithField("delete-err", deleteErr.Error()).Info("delete dangling workflow")
 		}
 
 		return &p.CurrentWorkflowConditionFailedError{
