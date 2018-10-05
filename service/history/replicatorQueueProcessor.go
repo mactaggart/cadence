@@ -118,6 +118,9 @@ func (p *replicatorQueueProcessorImpl) process(qTask queueTaskInfo) (int, error)
 			err = p.executionMgr.CompleteReplicationTask(&persistence.CompleteReplicationTaskRequest{TaskID: task.GetTaskID()})
 		}
 		return metrics.ReplicatorTaskHistoryScope, err
+	case persistence.ReplicationTaskTypeSyncActivity:
+		// TODO
+		return metrics.ReplicatorTaskSyncActivityScope, nil
 	default:
 		return metrics.ReplicatorQueueProcessorScope, errUnknownReplicationTask
 	}

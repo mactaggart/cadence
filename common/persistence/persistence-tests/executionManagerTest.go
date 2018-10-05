@@ -1066,6 +1066,11 @@ func (s *ExecutionManagerSuite) TestReplicationTasks() {
 				},
 			},
 		},
+		&p.SyncActivityTask{
+			TaskID:      s.GetNextSequenceNumber(),
+			Version:     789,
+			ScheduledID: 99,
+		},
 	}
 	err = s.UpdateWorklowStateAndReplication(updatedInfo1, nil, nil, nil, int64(3), replicationTasks)
 	s.NoError(err)

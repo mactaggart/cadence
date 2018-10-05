@@ -454,6 +454,8 @@ const (
 	ReplicatorQueueProcessorScope
 	// ReplicatorTaskHistoryScope is the scope used for history task processing by replicator queue processor
 	ReplicatorTaskHistoryScope
+	// ReplicatorTaskSyncActivityScope is the scope used for sync activity by replicator queue processor
+	ReplicatorTaskSyncActivityScope
 	// ReplicateHistoryEventsScope is the scope used by historyReplicator API for applying events
 	ReplicateHistoryEventsScope
 	// ShardInfoScope is the scope used when updating shard info
@@ -690,6 +692,7 @@ var ScopeDefs = map[ServiceIdx]map[int]scopeDefinition{
 		HistoryEventNotificationScope:                {operation: "HistoryEventNotification"},
 		ReplicatorQueueProcessorScope:                {operation: "ReplicatorQueueProcessor"},
 		ReplicatorTaskHistoryScope:                   {operation: "ReplicatorTaskHistory"},
+		ReplicatorTaskSyncActivityScope:              {operation: "ReplicatorTaskSyncActivity"},
 		ReplicateHistoryEventsScope:                  {operation: "ReplicateHistoryEvents"},
 		ShardInfoScope:                               {operation: "ShardInfo"},
 		WorkflowContextScope:                         {operation: "WorkflowContext"},
