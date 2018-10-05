@@ -1759,7 +1759,7 @@ func (d *cassandraPersistence) UpdateWorkflowExecution(request *p.InternalUpdate
 	}
 
 	if !applied {
-		return d.getExecutionConditionalUpdateFailure(previous, iter, executionInfo.RunID, request.Condition, request.RangeID, executionInfo.RunID)
+		return d.getExecutionConditionalUpdateFailure(previous, iter, executionInfo.RunID, request.Condition, request.RangeID, executionInfo.RunID, executionInfo)
 	}
 	return nil
 }
@@ -1922,13 +1922,13 @@ func (d *cassandraPersistence) ResetMutableState(request *p.InternalResetMutable
 	}
 
 	if !applied {
-		return d.getExecutionConditionalUpdateFailure(previous, iter, executionInfo.RunID, request.Condition, request.RangeID, request.PrevRunID)
+		return d.getExecutionConditionalUpdateFailure(previous, iter, executionInfo.RunID, request.Condition, request.RangeID, request.PrevRunID, executionInfo)
 	}
 
 	return nil
 }
 
-func (d *cassandraPersistence) getExecutionConditionalUpdateFailure(previous map[string]interface{}, iter *gocql.Iter, requestRunID string, requestCondition int64, requestRangeID int64, requestConditionalRunID string) error {
+func (d *cassandraPersistence) getExecutionConditionalUpdateFailure(previous map[string]interface{}, iter *gocql.Iter, requestRunID string, requestCondition int64, requestRangeID int64, requestConditionalRunID string, ei *p.InternalWorkflowExecutionInfo) error {
 	// There can be three reasons why the query does not get applied: the RangeID has changed, or the next_event_id or current_run_id check failed.
 	// Check the row info returned by Cassandra to figure out which one it is.
 	rangeIDUnmatch := false
@@ -1985,6 +1985,23 @@ GetFailureReasonLoop:
 	}
 
 	if runIDUnmatch {
+		deleteErr := d.session.Query(templateDeleteWorkflowExecutionMutableStateQuery,
+			d.shardID,
+			rowTypeExecution,
+			ei.DomainID,
+			ei.WorkflowID,
+			requestConditionalRunID,
+			defaultVisibilityTimestamp,
+			rowTypeExecutionTaskID).Exec()
+
+		if deleteErr == nil {
+			d.logger.WithField("DeletedAndKeep",
+				fmt.Sprintf("WorkflowID: %v, Deleted RunID: %v, Keep RunID: %v", ei.WorkflowID, requestConditionalRunID, actualCurrRunID)).Info("delete dangling workflow")
+
+		} else {
+			d.logger.WithField("err-msg", deleteErr.Error()).Info("delete dangling workflow failed")
+		}
+
 		return &p.CurrentWorkflowConditionFailedError{
 			Msg: fmt.Sprintf("Failed to update mutable state.  Request Condition: %v, Actual Value: %v, Request Current RunID: %v, Actual Value: %v",
 				requestCondition, actualNextEventID, requestConditionalRunID, actualCurrRunID),
