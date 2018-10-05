@@ -1999,7 +1999,8 @@ GetFailureReasonLoop:
 				fmt.Sprintf("WorkflowID: %v, Deleted RunID: %v, Keep RunID: %v", ei.WorkflowID, requestConditionalRunID, actualCurrRunID)).Info("delete dangling workflow")
 
 		} else {
-			d.logger.WithField("err-msg", deleteErr.Error()).Info("delete dangling workflow failed")
+			d.logger.WithField("err-msg", deleteErr.Error()).WithField("DeletedAndKeep",
+				fmt.Sprintf("WorkflowID: %v, Deleted RunID: %v, Keep RunID: %v", ei.WorkflowID, requestConditionalRunID, actualCurrRunID)).Info("delete dangling workflow")
 		}
 
 		return &p.CurrentWorkflowConditionFailedError{
